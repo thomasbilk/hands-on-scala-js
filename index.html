@@ -1672,10 +1672,10 @@ object RunMe extends scala.scalajs.js.JSApp{
       Running <code>sbt run</code> with the above Scala.js code will print out
 </p>
     <pre><code class="bash highlight-me hljs">Hello World!
-In Scala.js, (1.0).toString is 0!
+In Scala.js, (1.0).toString is 1!
 </code></pre>
     <p>
-      This exhibits the weirdness of integer divide-by-zero in Scala.js, which is one of the few ways in which <a href="#DeviationsfromScala-JVM">Scala.js deviates from Scala-JVM</a>. This also shows us we're really running on Scala.js: on Scala-JVM, integer divide-by-zero throws an exception rather than returning zero!
+      This exhibits the weirdness of <code class="scala highlight-me" style="padding: 0;display: inline;">Double.toString</code> in Scala.js, which is one of the few ways in which <a href="#DeviationsfromScala-JVM">Scala.js deviates from Scala-JVM</a>. This also shows us we're really running on Scala.js: on Scala-JVM, <code class="scala highlight-me" style="padding: 0;display: inline;">(1.0).toString</code> returns <code class="scala highlight-me" style="padding: 0;display: inline;">&quot;1.0&quot;</code> rather than <code class="scala highlight-me" style="padding: 0;display: inline;">&quot;1&quot;</code>!
 </p>
     <p>
       One thing you may be wondering is: when you run a Scala.js program in the terminal, how does it execute the output Javascript? What about the DOM? and Ajax calls? Can it access the filesystem? The answer to all these questions is &quot;it depends&quot;: it turns out there are multiple ways you can run Scala.js from the command-line:
