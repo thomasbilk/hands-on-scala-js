@@ -421,9 +421,6 @@ object ScalaJSExample {
     Here we are retrieving a handle to the canvas we will draw on using <code class="scala highlight-me" style="padding: 0;display: inline;">document.getElementById</code>, and from it we can get a <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D">CanvasRenderingContext2D</a> which we actually use to draw on it.
 </p>
   <p>
-    <code class="scala highlight-me" style="padding: 0;display: inline;">document.getElementById</code> is the exact same API that's used in normal Javascript, as documented <a href="https://developer.mozilla.org/en-US/docs/Web/API/document.getElementById">here</a>. In fact, the entire <code class="scala highlight-me" style="padding: 0;display: inline;">org.scalajs.dom</code> namespace (imported at the top of the file) comprises statically typed facades for the javascript APIs provided by the browser.
-</p>
-  <p>
     We need to perform the <code class="scala highlight-me" style="padding: 0;display: inline;">asInstanceOf</code> call because depending on what you pass to <code class="scala highlight-me" style="padding: 0;display: inline;">getElementById</code> and <code class="scala highlight-me" style="padding: 0;display: inline;">getContext</code>, you could be returned elements and contexts of different types. Hence we need to tell the compiler explicitly that we're expecting a <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D">CanvasRenderingContext2D</a> back from these methods for the strings we passed in.
 </p>
   <pre><code class="scala highlight-me hljs">def run = for (i &lt;- 0 until 10){
@@ -537,10 +534,14 @@ updateBrowsers &lt;&lt;= updateBrowsers.triggeredBy(ScalaJSKeys.fastOptJS in Com
 </p>
     <p>
       The <code class="scala highlight-me" style="padding: 0;display: inline;">ScalaJSExample().main()</code> call is what kicks off the Scala.js application and starts its execution. Scala.js follows Scala semantics in that <code class="scala highlight-me" style="padding: 0;display: inline;">object</code>s are evaluated lazily, with no top-level code allowed. This is in contrast to Javascript, where you can include top-level statements and object-literals in your code which execute immediately. In Scala.js, nothing happens when <code>../example-fastopt.js</code> is imported! We have to call the main-method first. In this case, we're passing the canvas object (attained using <code class="javascript highlight-me" style="padding: 0;display: inline;">getElementById</code>) to it so it knows where to do its thing.
+
 </p>
+  <p>
+    <code class="scala highlight-me" style="padding: 0;display: inline;">document.getElementById</code> is the exact same API that's used in normal Javascript, as documented <a href="https://developer.mozilla.org/en-US/docs/Web/API/document.getElementById">here</a>. In fact, the entire <code class="scala highlight-me" style="padding: 0;display: inline;">org.scalajs.dom</code> namespace (imported at the top of the file) comprises statically typed facades for the javascript APIs provided by the browser.
+
     <p>
       Lastly, only <code class="scala highlight-me" style="padding: 0;display: inline;">@JSExport</code>ed objects and methods can be called from Javascript. Also, although this example only exports the <code class="scala highlight-me" style="padding: 0;display: inline;">main</code> method which is called once, there is nothing stopping you from exporting any number of objects and methods and calling them whenever you need to. In this way, you can easily make a Scala.js &quot;library&quot; which is available to external Javascript as an API.
-</p>
+</p></p>
 <h1 class="content-subhead" id="Publishing">Publishing<a class="header-link" href="#Publishing"> <i class="fa fa-link"></i></a></h1>
   <p>
     The last thing that we'll do with our toy application is to publish it. If you look in the <code>target/scala2.11</code> folder, you'll see the output of everything we've done so far:
@@ -1663,7 +1664,7 @@ target.appendChild(
 object RunMe extends scala.scalajs.js.JSApp{
   def main(): Unit = {
     println(&quot;Hello World!&quot;)
-    println(&quot;In Scala.js, 1/0 is ${1/0}!&quot;)
+    println(&quot;In Scala.js, (1.0).toString is ${(1.0).toString}!&quot;)
   }
 }
 </code></pre>
@@ -1671,7 +1672,7 @@ object RunMe extends scala.scalajs.js.JSApp{
       Running <code>sbt run</code> with the above Scala.js code will print out
 </p>
     <pre><code class="bash highlight-me hljs">Hello World!
-In Scala.js, 1/0 is 0!
+In Scala.js, (1.0).toString is 0!
 </code></pre>
     <p>
       This exhibits the weirdness of integer divide-by-zero in Scala.js, which is one of the few ways in which <a href="#DeviationsfromScala-JVM">Scala.js deviates from Scala-JVM</a>. This also shows us we're really running on Scala.js: on Scala-JVM, integer divide-by-zero throws an exception rather than returning zero!
@@ -1685,7 +1686,7 @@ In Scala.js, 1/0 is 0!
       <li>
         <b>Node.js</b> using <code>sbt fastOptStage::run</code> or <code>sbt fullOptStage::run</code>, having installed Node.js separately</li>
       <li>
-        <b>PhantomJS</b> using <code>sbt fastOptStage::run</code> or <code>sbt fullOptStage::run</code>, having installed PhantomJS separately, and turned on <code class="scala highlight-me" style="padding: 0;display: inline;">requiresDOM := true</code> in SBT
+        <b>PhantomJS</b> using <code>sbt fastOptStage::run</code> or <code>sbt fullOptStage::run</code>, having installed PhantomJS separately, and turned on <code class="scala highlight-me" style="padding: 0;display: inline;">jsDependencies += RuntimeDOM</code> in SBT
 </li></ul>
     <p>
       Typically, the best way to get started is using Rhino and <code>sbt run</code>, since it's setup-free, and setting up Node.js or PhantomJS later as necessary. The next two sections elaborate on the differences between these ways of running your code. Check out the later sections on <a href="#HeadlessRuntimes">Headless Runtimes</a> and <a href="#RunConfigurations">Run Configurations</a> to learn more about the other settings and why you would want to use them.
@@ -1707,7 +1708,7 @@ In Scala.js, 1/0 is 0!
     <li>
       <a href="http://nodejs.org/">Node.js</a>, a relatively new Javascript runtime based on Google's V8 Javascript engine, Node.js lets you run your Scala.js application from the command line much faster than in Rhino, with performance that matches that of modern browsers. However, you need to separately <a href="http://nodejs.org/download/">install Node.js</a> in order to use it. Like Rhino, it comes with a bare-minimal runtime environment, with no DOM or browser-related functionality. You need to run <code>sbt fastOptStage::run</code> to run using Node.js.</li>
     <li>
-      <a href="http://phantomjs.org/">PhantomJS</a> is a headless Webkit browser. This means that unlike Node.js or Rhino, PhantomJS provides you with a full DOM and all its APIs to use in your tests, if you wish to e.g. test interactions with the HTML of the web page. On the other hand, it is somewhat slower than Node.js, though still much faster than Rhino. Like Node.js, it needs to be installed separately. You need to run You need to run <code>sbt fastOptStage::run</code>, as well as setting the <code class="scala highlight-me" style="padding: 0;display: inline;">requiresDOM := true</code> flag in your SBT configuration, to use PhantomJS.</li></ul>
+      <a href="http://phantomjs.org/">PhantomJS</a> is a headless Webkit browser. This means that unlike Node.js or Rhino, PhantomJS provides you with a full DOM and all its APIs to use in your tests, if you wish to e.g. test interactions with the HTML of the web page. On the other hand, it is somewhat slower than Node.js, though still much faster than Rhino. Like Node.js, it needs to be installed separately. You need to run You need to run <code>sbt fastOptStage::run</code>, as well as setting the <code class="scala highlight-me" style="padding: 0;display: inline;">jsDependencies += RuntimeDOM</code> flag in your SBT configuration, to use PhantomJS.</li></ul>
   <p>
     These are your three options to run your Scala.js code via the command-line. Generally, it's easiest to get started with Rhino since it's the default and requires no setup, though you may find it worthwhile to setup Node or Phantom if you need additional speed or DOM-integration in your runs.
 </p>
@@ -1889,7 +1890,7 @@ November 2, 2014 2:58:50 PM PST
       Publish it! Both <code>sbt publishLocal</code> and <code>sbt publishSigned</code> work on this module, for publishing either locally, Maven Central via Sonatype, or Bintray. Running the command bare should be sufficient to publish both the <code>js</code> or <code>jvm</code> projects, or you can also specify which one e.g. <code>jvm/publishLocal</code> to publish only one subproject.
 </li></ul>
   <p>
-    This <code>jvm</code> project works identically to any other Scala-JVM project, and the <code>js</code> project works identically to the Command Line API described earlier. Thus you can do things like <code>fastOptStage::run</code> to run the code on Node.js, setting <code class="scala highlight-me" style="padding: 0;display: inline;">requiresDOM := true</code>, run <code>fullOptStage::run</code> to run the code with full, aggressive optimizations. And of course, things that work in both Scala.js and Scala-JVM can be run on both, basic commands such as <code>run</code> or <code>test</code>.
+    This <code>jvm</code> project works identically to any other Scala-JVM project, and the <code>js</code> project works identically to the Command Line API described earlier. Thus you can do things like <code>fastOptStage::run</code> to run the code on Node.js, setting <code class="scala highlight-me" style="padding: 0;display: inline;">jsDependencies += RuntimeDOM</code>, run <code>fullOptStage::run</code> to run the code with full, aggressive optimizations. And of course, things that work in both Scala.js and Scala-JVM can be run on both, basic commands such as <code>run</code> or <code>test</code>.
 </p>
   <p>
     You can also run tests using this code, if you have a testing library set up. The next section will go into detail as to how to set that up.
@@ -2986,11 +2987,11 @@ def rect = canvas.getBoundingClientRect()
 
 type ME = dom.MouseEvent
 val mousemove =
-  Channel[ME](canvas.onmousemove = _)
+  new Channel[ME](canvas.onmousemove = _)
 val mouseup =
-  Channel[ME](canvas.onmouseup = _)
+  new Channel[ME](canvas.onmouseup = _)
 val mousedown =
-  Channel[ME](canvas.onmousedown = _)
+  new Channel[ME](canvas.onmousedown = _)
 
 async{
   while(true){
@@ -3028,7 +3029,7 @@ async{
       <p>
         You may be wondering what these <code class="scala highlight-me" style="padding: 0;display: inline;">Channel</code> things are, and where they are coming from. Although these are not provided by Scala, they are pretty straightforward to define ourselves:
 </p>
-      <pre><code class="scala highlight-me hljs">case class Channel[T](init: (T =&gt; Unit) =&gt; Unit){
+      <pre><code class="scala highlight-me hljs">class Channel[T](init: (T =&gt; Unit) =&gt; Unit){
   init(update)
   private[this] var value: Promise[T] = null
   def apply(): Future[T] = {
