@@ -2088,7 +2088,8 @@ lazy val server = project.in(file(&quot;server&quot;))
 </code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/build.sbt" target="_blank"><i class="fa fa-link "></i></a></pre>
 
   <p>
-    We have two projects: <code>client</code> and <code>server</code>, one of which is a Scala.js project (indicated by the presence of <code class="scala highlight-me" style="padding: 0;display: inline;">scalaJSSettings</code>). Both projects share a number of settings: the presence of the <code>shared/</code> folder, which shared code can live in (similar to what we saw in <a href="#CrossPublishingLibraries">Cross Publishing Libraries</a>) and the settings to add <a href="https://github.com/lihaoyi/scalatags">Scalatags</a> and <a href="https://github.com/lihaoyi/upickle">uPickle</a> to the build. Note that those two dependencies use the triple <code>%%%</code> instead of the double <code>%%</code> to declare: this means that for each dependency, we will pull in the Scala-JVM or Scala.js version depending on whether it's being used in a Scala.js project.</p>
+    We have two projects: <code>client</code> and <code>server</code>, one of which is a Scala.js project (indicated by the presence of <code class="scala highlight-me" style="padding: 0;display: inline;">scalaJSSettings</code>). Both projects share a number of settings: the presence of the <code>shared/</code> folder, which shared code can live in (similar to what we saw in <a href="#CrossPublishingLibraries">Cross Publishing Libraries</a>) and the settings to add <a href="https://github.com/lihaoyi/scalatags">Scalatags</a> and <a href="https://github.com/lihaoyi/upickle">uPickle</a> to the build. Note that those two dependencies use the triple <code>%%%</code> instead of the double <code>%%</code> to declare: this means that for each dependency, we will pull in the Scala-JVM or Scala.js version depending on whether it's being used in a Scala.js project. Note also the <code class="scala highlight-me" style="padding: 0;display: inline;">packageArchetype.java_application</code> setting, which isn't strictly necessary depending on what you want to do with the application, but this example needs it as part of the deployment to Heroku.
+</p>
   <p>
     The <code>client</code> subproject is uneventful, with a dependency on the by-now-familiar <code>scalajs-dom</code> library. The <code>server</code> project, on the other hand, is interesting: it contains the dependencies required for us to set up out Spray server, and one additional thing: we add the output of <code>fastOptJS</code> from the client to the <code>resources</code> on the server. This will allow the <code>server</code> to serve the compiled-javascript from our <code>client</code> project from its resources.
 </p>
@@ -2227,6 +2228,9 @@ case class FileData(name: String, size: Long)</code><a class="header-link" style
 </p>
   <iframe src="https://hands-on-scala-js.herokuapp.com/" style="width: 100%;height: 300px;" frameBorder="0"></iframe>
 
+  <p>
+    This is a real, live example running on a <a href="https://hands-on-scala-js.herokuapp.com/">Heroku server</a>. Feel free to poke around and explore the filesystem on the server, just to convince yourself that this actually works and is not just a mock up.
+</p>
 <h1 class="content-subhead" id="Client-ServerReflections">Client-Server Reflections<a class="header-link" href="#Client-ServerReflections"> <i class="fa fa-link"></i></a></h1>
   <p>
     By now you've already set up your first client-server application. However, it might not be immediately clear what we've done and why it's interesting! Here are some points to consider.
