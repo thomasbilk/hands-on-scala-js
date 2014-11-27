@@ -2048,7 +2048,8 @@ object SimpleTest extends TestSuite{
   <p>
     First, let's do the wiring in <code>build.sbt</code>:
 </p>
-  <pre><code class="scala highlight-me hljs">import utest.jsrunner.JsCrossBuild
+  <pre><code class="scala highlight-me hljs">import NativePackagerKeys._
+import utest.jsrunner.JsCrossBuild
 import scala.scalajs.sbtplugin.ScalaJSPlugin._
 import ScalaJSKeys._
 val sharedSettings = Seq(
@@ -2072,6 +2073,7 @@ lazy val client = project.in(file(&quot;client&quot;))
 
 lazy val server = project.in(file(&quot;server&quot;))
                          .settings(sharedSettings:_*)
+                         .settings(packageArchetype.java_application:_*)
                          .settings(
   libraryDependencies ++= Seq(
     &quot;io.spray&quot; %% &quot;spray-can&quot; % &quot;1.3.2&quot;,
@@ -2099,10 +2101,13 @@ import akka.actor.ActorSystem
 import spray.http.{HttpEntity, MediaTypes}
 import spray.routing.SimpleRoutingApp
 
+import scala.util.Properties
+
 object Server extends SimpleRoutingApp{
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem()
-    startServer(&quot;localhost&quot;, port = 8080){
+    val port = Properties.envOrElse(&quot;PORT&quot;, &quot;8080&quot;).toInt
+    startServer(&quot;0.0.0.0&quot;, port = port){
       get{
         pathSingleSlash{
           complete{
@@ -2155,7 +2160,7 @@ object Page{
         script(src:=&quot;/client-fastopt.js&quot;),
         link(
           rel:=&quot;stylesheet&quot;,
-          href:=&quot;http://yui.yahooapis.com/pure/0.5.0/pure-min.css&quot;
+          href:=&quot;https://cdnjs.cloudflare.com/ajax/libs/pure/0.5.0/pure-min.css&quot;
         )
       ),
       body(
@@ -2220,6 +2225,8 @@ case class FileData(name: String, size: Long)</code><a class="header-link" style
   <p>
     Now, if we go to the browser at <code>localhost:8080</code>, we should see our web-page!
 </p>
+  <iframe src="https://hands-on-scala-js.herokuapp.com/" style="width: 100%;height: 300px;" frameBorder="0"></iframe>
+
 <h1 class="content-subhead" id="Client-ServerReflections">Client-Server Reflections<a class="header-link" href="#Client-ServerReflections"> <i class="fa fa-link"></i></a></h1>
   <p>
     By now you've already set up your first client-server application. However, it might not be immediately clear what we've done and why it's interesting! Here are some points to consider.
@@ -2251,9 +2258,9 @@ case class FileData(name: String, size: Long)</code><a class="header-link" style
   <p>
     However, there is still some amount of duplication in the code. In particular, the definition of the endpoint name &quot;list&quot; is duplicated 4 times:
 </p>
-  <pre><code class="scala highlight-me hljs">path(&quot;ajax&quot; / &quot;list&quot;){</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L22-L23" target="_blank"><i class="fa fa-link "></i></a></pre>
-  <pre><code class="scala highlight-me hljs">upickle.write(list(e))</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L25-L26" target="_blank"><i class="fa fa-link "></i></a></pre>
-  <pre><code class="scala highlight-me hljs">def list(path: String) = {</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L32-L33" target="_blank"><i class="fa fa-link "></i></a></pre>
+  <pre><code class="scala highlight-me hljs">path(&quot;ajax&quot; / &quot;list&quot;){</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L25-L26" target="_blank"><i class="fa fa-link "></i></a></pre>
+  <pre><code class="scala highlight-me hljs">upickle.write(list(e))</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L28-L29" target="_blank"><i class="fa fa-link "></i></a></pre>
+  <pre><code class="scala highlight-me hljs">def list(path: String) = {</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/server/src/main/scala/simple/Server.scala#L35-L36" target="_blank"><i class="fa fa-link "></i></a></pre>
   <pre><code class="scala highlight-me hljs">def update() = Ajax.post(&quot;/ajax/list&quot;, inputBox.value).foreach{ xhr =&gt;</code><a class="header-link" style="position: absolute;right: 0.5em;bottom: 0.5em;display: block;font-size: 24px;" href="https://github.com/lihaoyi/hands-on-scala-js/tree/master/examples/crossBuilds/clientserver/client/src/main/scala/simple/Client.scala#L14-L15" target="_blank"><i class="fa fa-link "></i></a></pre>
 
   <p>
