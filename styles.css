@@ -320,16 +320,16 @@ code{
 .header-link{
     opacity: 0.05;
 }
-#menu .menu-item-list .hide ul li > a{
+#menu .collapsed .menu-item-list .hide ul li > a{
     padding-top: 0px;
     padding-bottom: 0px;
 }
 #menu .collapsed.menu-item-list li.hide > ul{
     overflow: hidden;
 }
-#menu .expanded.menu-item-list .hide li > a{
+#menu .expanded.menu-item-list .hide li > a:not(:hover){
     background: none;
-    color: #777;
+    color: #999;
 }
 
 #menu .menu-item-list li.selected{
